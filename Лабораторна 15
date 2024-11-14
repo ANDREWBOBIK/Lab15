@@ -1,0 +1,89 @@
+Завдання 1:
+
+import pandas as pd
+
+# Словник, який використовувався у лабораторній роботі №6
+data_dict = {
+    'Name': ['John', 'Alice', 'Bob', 'David', 'Emma'],
+    'Age': [23, 24, 22, 23, 24],
+    'Country': ['USA', 'Canada', 'USA', 'Canada', 'USA'],
+    'Score': [85, 92, 78, 88, 95]
+}
+
+# Перетворення словника в DataFrame
+df = pd.DataFrame(data_dict)
+
+# Виведення DataFrame на екран
+print("Оригінальний DataFrame:")
+print(df)
+
+# 1. Додавання даних у словник (змінити вікову категорію для певної людини)
+df.loc[df['Name'] == 'Bob', 'Age'] = 25  # Змінюємо вік Bob на 25
+
+# Додавання нової особи до DataFrame
+new_data = pd.DataFrame({'Name': ['Olivia'], 'Age': [22], 'Country': ['UK'], 'Score': [90]})
+df = pd.concat([df, new_data], ignore_index=True)
+
+# Виведення оновленого DataFrame
+print("\nОновлений DataFrame:")
+print(df)
+
+# 2. Групування даних за країною та підрахунок середнього балу
+grouped_data = df.groupby('Country')['Score'].mean()
+
+# Виведення результатів агрегації
+print("\nСередні бали по країнах:")
+print(grouped_data)
+
+# 3. Групування та агрегація за віком (середній бал для кожної вікової групи)
+age_grouped = df.groupby('Age')['Score'].mean()
+
+# Виведення результатів агрегації за віком
+print("\nСередні бали за віком:")
+print(age_grouped)
+
+
+Завдання 2:
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Завантажуємо CSV файл
+file_path = 'bike_usage_2017.csv'  # Вкажіть шлях до вашого файлу
+df = pd.read_csv(file_path)
+
+# Перетворюємо стовпець 'Date' на формат datetime, замінюючи некоректні дати на NaT
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce', format='%Y-%m-%d')
+
+# Перевірка на наявність некоректних дат
+if df['Date'].isna().sum() > 0:
+    print(f"Знайдено {df['Date'].isna().sum()} некоректних дат.")
+
+# Видаляємо рядки з NaT у стовпці 'Date'
+df = df.dropna(subset=['Date'])
+
+# Створюємо новий стовпець з місяцем
+df['Month'] = df['Date'].dt.month
+
+# Групуємо за місяцем і підраховуємо середнє використання велодоріжки
+monthly_usage = df.groupby('Month')['Usage'].mean()
+
+# Найбільш популярний місяць
+most_popular_month = monthly_usage.idxmax()
+print(f"Найбільш популярний місяць: {most_popular_month}")
+
+# Виведення середнього використання в кожному місяці
+print("\nСереднє використання велодоріжок у кожному місяці:")
+print(monthly_usage)
+
+# Побудова графіка
+plt.figure(figsize=(10, 6))
+monthly_usage.plot(kind='bar', color='skyblue', edgecolor='black')
+plt.title('Середнє використання велодоріжок за місяцями (2017)', fontsize=14)
+plt.xlabel('Місяць', fontsize=12)
+plt.ylabel('Середнє використання', fontsize=12)
+plt.xticks(rotation=0)  # Щоб підписи на осі X були горизонтальні
+plt.grid(axis='y', linestyle='--', alpha=0.7)  # Додаємо сітку для осі Y
+plt.tight_layout()  # Покращуємо вигляд графіка
+plt.show()
+
